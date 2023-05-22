@@ -14,6 +14,7 @@ import (
 	"github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	_ "github.com/lib/pq"
+	"greenlight.geekr.dev/internal/data"
 )
 
 const version = "1.0.0"
@@ -32,6 +33,7 @@ type config struct {
 type application struct {
 	config config
 	logger *log.Logger
+	models data.Models
 }
 
 func main() {
@@ -39,7 +41,10 @@ func main() {
 
 	flag.IntVar(&cfg.port, "port", 4000, "API server port")
 	flag.StringVar(&cfg.env, "env", "development", "Environment (development|staging|production)")
-	flag.StringVar(&cfg.db.dsn, "dsn", "postgres://greenlight:paSSword@localhost/greenlight", "PostgreSQL DSN")
+	flag.StringVar(&cfg.db.dsn, "db-dsn", "postgres://greenlight:paSSword@localhost/greenlight", "PostgreSQL DSN")
+	flag.IntVar(&cfg.db.maxOpenConns, "db-max-open-conns", 25, "PostgreSQL max open connections")
+	flag.IntVar(&cfg.db.maxIdleConns, "db-max-idle-conns", 25, "PostgreSQL max idle connections")
+	flag.StringVar(&cfg.db.maxIdleTime, "db-max-idle-time", "15m", "PostgreSQL max connection idle time")
 
 	flag.Parse()
 
@@ -58,19 +63,20 @@ func main() {
 		logger.Fatal(err)
 	}
 
-	migrator, err := migrate.NewWithDatabaseInstance("/home/geekr/Development/go/greenlight/migrations", "postgres", migrationDriver)
+	migrator, err := migrate.NewWithDatabaseInstance("file:///home/geekr/Development/go/greenlight/migrations", "postgres", migrationDriver)
 	if err != nil {
 		logger.Fatal(err)
 	}
 
 	err = migrator.Up()
-	if err != nil {
+	if err != nil && err != migrate.ErrNoChange {
 		logger.Fatal(err)
 	}
 
 	app := &application{
 		config: cfg,
 		logger: logger,
+		models: data.NewModels(db),
 	}
 
 	srv := &http.Server{
@@ -83,6 +89,7 @@ func main() {
 
 	// Start the HTTP server.
 	logger.Printf("starting %s server on %s", cfg.env, srv.Addr)
+
 	err = srv.ListenAndServe()
 	logger.Fatal(err)
 }
