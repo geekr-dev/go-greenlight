@@ -10,6 +10,9 @@ import (
 	"os"
 	"time"
 
+	"github.com/golang-migrate/migrate/v4"
+	"github.com/golang-migrate/migrate/v4/database/postgres"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
 	_ "github.com/lib/pq"
 )
 
@@ -44,11 +47,26 @@ func main() {
 
 	db, err := openDB(cfg)
 	if err != nil {
-		log.Fatal(err)
+		logger.Fatal(err)
 	}
 	defer db.Close()
 
 	logger.Printf("database connection pool established")
+
+	migrationDriver, err := postgres.WithInstance(db, &postgres.Config{})
+	if err != nil {
+		logger.Fatal(err)
+	}
+
+	migrator, err := migrate.NewWithDatabaseInstance("/home/geekr/Development/go/greenlight/migrations", "postgres", migrationDriver)
+	if err != nil {
+		logger.Fatal(err)
+	}
+
+	err = migrator.Up()
+	if err != nil {
+		logger.Fatal(err)
+	}
 
 	app := &application{
 		config: cfg,
