@@ -1,16 +1,26 @@
 package data
 
 import (
+	"encoding/json"
 	"fmt"
-	"strconv"
 )
 
-type Runtime int32
+func (m Movie) MarshalJSON() ([]byte, error) {
+	var runtime string
 
-func (r Runtime) MarshalJSON() ([]byte, error) {
-	jsonValue := fmt.Sprintf("%d mins", r)
+	if m.Runtime != 0 {
+		runtime = fmt.Sprintf("%d mins", m.Runtime)
+	}
 
-	quotedJSONValue := strconv.Quote(jsonValue)
+	type MovieAlias Movie
 
-	return []byte(quotedJSONValue), nil
+	aux := struct {
+		MovieAlias
+		Runtime string `json:"runtime"`
+	}{
+		MovieAlias: MovieAlias(m),
+		Runtime:    runtime,
+	}
+
+	return json.Marshal(aux)
 }
