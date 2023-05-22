@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"flag"
 	"fmt"
-	"log"
 	"net/http"
 	"os"
 	"time"
@@ -14,7 +13,9 @@ import (
 	"github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	_ "github.com/lib/pq"
+
 	"greenlight.geekr.dev/internal/data"
+	"greenlight.geekr.dev/internal/data/jsonlog"
 )
 
 const version = "1.0.0"
@@ -32,7 +33,7 @@ type config struct {
 
 type application struct {
 	config config
-	logger *log.Logger
+	logger *jsonlog.Logger
 	models data.Models
 }
 
@@ -48,29 +49,29 @@ func main() {
 
 	flag.Parse()
 
-	logger := log.New(os.Stdout, "", log.Ldate|log.Ltime)
+	logger := jsonlog.New(os.Stdout, jsonlog.LevelInfo)
 
 	db, err := openDB(cfg)
 	if err != nil {
-		logger.Fatal(err)
+		logger.Fatal(err, nil)
 	}
 	defer db.Close()
 
-	logger.Printf("database connection pool established")
+	logger.Info("database connection pool established", nil)
 
 	migrationDriver, err := postgres.WithInstance(db, &postgres.Config{})
 	if err != nil {
-		logger.Fatal(err)
+		logger.Fatal(err, nil)
 	}
 
 	migrator, err := migrate.NewWithDatabaseInstance("file:///home/geekr/Development/go/greenlight/migrations", "postgres", migrationDriver)
 	if err != nil {
-		logger.Fatal(err)
+		logger.Fatal(err, nil)
 	}
 
 	err = migrator.Up()
 	if err != nil && err != migrate.ErrNoChange {
-		logger.Fatal(err)
+		logger.Fatal(err, nil)
 	}
 
 	app := &application{
@@ -88,10 +89,13 @@ func main() {
 	}
 
 	// Start the HTTP server.
-	logger.Printf("starting %s server on %s", cfg.env, srv.Addr)
+	logger.Info("starting server", map[string]string{
+		"addr": srv.Addr,
+		"env":  cfg.env,
+	})
 
 	err = srv.ListenAndServe()
-	logger.Fatal(err)
+	logger.Fatal(err, nil)
 }
 
 func openDB(cfg config) (*sql.DB, error) {
