@@ -54,8 +54,8 @@ func (l *Logger) Fatal(err error, props map[string]string) {
 	os.Exit(1)
 }
 
-func (l *Logger) Write(message string) {
-	l.print(LevelInfo, message, nil)
+func (l *Logger) Write(message []byte) (n int, err error) {
+	return l.print(LevelInfo, string(message), nil)
 }
 
 func (l *Logger) print(level Level, message string, props map[string]string) (int, error) {
