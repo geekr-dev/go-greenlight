@@ -39,6 +39,7 @@ func (app *application) registerUserHanlder(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
+	// Insert the user into the database.
 	err = app.models.Users.Insert(user)
 	if err != nil {
 		switch {
@@ -48,6 +49,13 @@ func (app *application) registerUserHanlder(w http.ResponseWriter, r *http.Reque
 		default:
 			app.serverErrorResponse(w, r, err)
 		}
+		return
+	}
+
+	// Send the user a welcome email.
+	err = app.mailer.Send(user.Email, "user_welcome.tmpl", user)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
 		return
 	}
 
