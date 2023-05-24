@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"expvar"
 	"flag"
+	"fmt"
 	"os"
 	"runtime"
 	"strings"
@@ -19,9 +20,12 @@ import (
 	"greenlight.geekr.dev/internal/data"
 	"greenlight.geekr.dev/internal/jsonlog"
 	"greenlight.geekr.dev/internal/mailer"
+	"greenlight.geekr.dev/internal/vcs"
 )
 
-const version = "1.0.0"
+var (
+	version = vcs.Version()
+)
 
 type config struct {
 	port int
@@ -83,7 +87,14 @@ func main() {
 		return nil
 	})
 
+	displayVersion := flag.Bool("version", false, "Display version and exit")
+
 	flag.Parse()
+
+	if *displayVersion {
+		fmt.Printf("Version: %s\n", version)
+		return
+	}
 
 	logger := jsonlog.New(os.Stdout, jsonlog.LevelInfo)
 
