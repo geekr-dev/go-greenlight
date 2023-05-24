@@ -11,6 +11,7 @@ require (
 )
 
 require (
+	github.com/felixge/httpsnoop v1.0.3 // indirect
 	github.com/go-mail/mail/v2 v2.3.0 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
