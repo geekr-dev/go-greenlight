@@ -3,6 +3,8 @@ module greenlight.geekr.dev
 go 1.20
 
 require (
+	github.com/felixge/httpsnoop v1.0.3
+	github.com/go-mail/mail/v2 v2.3.0
 	github.com/golang-migrate/migrate/v4 v4.15.2
 	github.com/julienschmidt/httprouter v1.3.0
 	github.com/lib/pq v1.10.9
@@ -11,10 +13,9 @@ require (
 )
 
 require (
-	github.com/felixge/httpsnoop v1.0.3 // indirect
-	github.com/go-mail/mail/v2 v2.3.0 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	go.uber.org/atomic v1.7.0 // indirect
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
+	gopkg.in/mail.v2 v2.3.1 // indirect
 )
