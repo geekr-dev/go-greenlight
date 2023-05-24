@@ -60,7 +60,7 @@ func (app *application) rateLimitExceededResponse(w http.ResponseWriter, r *http
 	app.errorResponse(w, r, http.StatusTooManyRequests, message)
 }
 
-func (app *application) InvalidCredentialsResponse(w http.ResponseWriter, r *http.Request) {
+func (app *application) invalidCredentialsResponse(w http.ResponseWriter, r *http.Request) {
 	message := "invalid authentication credentials"
 	app.errorResponse(w, r, http.StatusUnauthorized, message)
 }
@@ -68,4 +68,14 @@ func (app *application) InvalidCredentialsResponse(w http.ResponseWriter, r *htt
 func (app *application) invalidAuthenticationTokenResponse(w http.ResponseWriter, r *http.Request) {
 	message := "invalid or missing authentication token"
 	app.errorResponse(w, r, http.StatusUnauthorized, message)
+}
+
+func (app *application) authenticationRequiredResponse(w http.ResponseWriter, r *http.Request) {
+	message := "you must be authenticated to access this resource"
+	app.errorResponse(w, r, http.StatusUnauthorized, message)
+}
+
+func (app *application) inactiveAccountResponse(w http.ResponseWriter, r *http.Request) {
+	message := "your user account must be activated to access this resource"
+	app.errorResponse(w, r, http.StatusForbidden, message)
 }
