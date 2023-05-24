@@ -3,7 +3,6 @@ package data
 import (
 	"database/sql"
 	"errors"
-	"time"
 )
 
 var (
@@ -12,36 +11,17 @@ var (
 )
 
 type Models struct {
-	Movies interface {
-		Insert(movie *Movie) error
-		Get(id int64) (*Movie, error)
-		Update(movie *Movie) error
-		Delete(id int64) error
-		GetAll(title string, genres []string, filters Filters) ([]*Movie, Metadata, error)
-	}
-	Users interface {
-		Insert(user *User) error
-		GetByEmail(email string) (*User, error)
-		Update(user *User) error
-		GetForToken(tokenScope, tokenPlaintext string) (*User, error)
-	}
-	Tokens interface {
-		New(userID int64, ttl time.Duration, scope string) (*Token, error)
-		Insert(token *Token) error
-		DeleteAllForUser(scope string, userID int64) error
-	}
+	Movies      MovieModel
+	Users       UserModel
+	Tokens      TokenModel
+	Permissions PermissionModel
 }
 
 func NewModels(db *sql.DB) Models {
 	return Models{
-		Movies: MovieModel{DB: db},
-		Users:  UserModel{DB: db},
-		Tokens: TokenModel{DB: db},
-	}
-}
-
-func NewMockModels() Models {
-	return Models{
-		Movies: MockMovieModel{},
+		Movies:      MovieModel{DB: db},
+		Users:       UserModel{DB: db},
+		Tokens:      TokenModel{DB: db},
+		Permissions: PermissionModel{DB: db},
 	}
 }
